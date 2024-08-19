@@ -58,7 +58,7 @@ int main() {
     struct wtype wtype;
     memset(&wtype, 0, sizeof(wtype));
 
-    const char* newArgv[] = {"fpc1020", "-M", "win", "-k", "s"};
+    const char* newArgv[] = {"fpc1020", "-M", "win", "-k", "super_l"};
     int newArgc = sizeof(newArgv) / sizeof(newArgv[0]);
 
     parse_args(&wtype, newArgc, newArgv);

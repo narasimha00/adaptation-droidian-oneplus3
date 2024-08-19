@@ -40,7 +40,7 @@ void lights() {
     if (f != NULL) {
         fprintf(f, "40");
         fclose(f);
-        sleep(1.5);
+        sleep(1);
         f = fopen(LED_BRIGHTNESS, "w");
         if (f != NULL) {
             fprintf(f, "0");

@@ -1,0 +1,11 @@
+[Unit]
+Description=Service to wake up display earlier
+After=phosh.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'sleep 2; BRIGHTNESS="$(cat /sys/class/leds/lcd-backlight/brightness)"; if [ $BRIGHTNESS -eq 0 ]; then BRIGHTNESS=40; fi; echo $BRIGHTNESS > /sys/class/leds/lcd-backlight/brightness'
+
+[Install]
+WantedBy=multi-user.target
+

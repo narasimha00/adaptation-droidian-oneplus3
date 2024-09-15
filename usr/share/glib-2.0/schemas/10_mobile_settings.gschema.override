@@ -1,2 +1,6 @@
 [org.droidian.MobileSettings]
 touchpanel-double-tap-available = true
+touchpanel-swipe-up-available = true
+touchpanel-swipe-down-available = true
+touchpanel-swipe-left-available = true
+touchpanel-swipe-right-available = true

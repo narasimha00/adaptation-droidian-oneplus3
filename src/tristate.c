@@ -26,67 +26,12 @@ int KEY_CODE_1;
 int KEY_CODE_2;
 int KEY_CODE_3;
 
-typedef struct node {
-    char command[100];
-    struct node *next;
-} Node;
-
-Node *front = NULL;
-Node *rear = NULL;
-pthread_mutex_t lock;
-pthread_cond_t cond;
-
-void enqueue(char* command) {
-    Node *temp = (Node*)malloc(sizeof(Node));
-    strncpy(temp->command, command, sizeof(temp->command));
-    temp->next = NULL;
-
-    pthread_mutex_lock(&lock);
-
-    if (rear == NULL) {
-        front = rear = temp;
-    } else {
-        rear->next = temp;
-        rear = temp;
+void run_command(char *command) {
+    pid_t pid = fork();
+    if (pid == 0) {
+        execl("/bin/sh", "sh", "-c", command, NULL);
+        _exit(127);
     }
-
-    pthread_cond_signal(&cond);
-    pthread_mutex_unlock(&lock);
-}
-
-void* worker_thread(void *arg) {
-    while (1) {
-        pthread_mutex_lock(&lock);
-
-        while (front == NULL) {
-            pthread_cond_wait(&cond, &lock);
-        }
-
-        Node *temp = front;
-        front = front->next;
-
-        if (front == NULL) {
-            rear = NULL;
-        }
-
-        pthread_mutex_unlock(&lock);
-
-        // Execute the system command
-        system(temp->command);
-
-        free(temp);
-    }
-
-    return NULL;
-}
-
-void init_queue_and_worker() {
-    pthread_t tid;
-    pthread_mutex_init(&lock, NULL);
-    pthread_cond_init(&cond, NULL);
-
-    // Start the worker thread
-    pthread_create(&tid, NULL, worker_thread, NULL);
 }
 
 void readconfig() {
@@ -158,8 +103,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    init_queue_and_worker();
-
     while (1) {
         int fd_device = open(DEVICE_FILE, O_RDONLY);
         if (fd_device == -1) {
@@ -169,13 +112,13 @@ int main(int argc, char *argv[]) {
         read(fd_device, &ev, sizeof(struct input_event));
         if (ev.type == EV_KEY && ev.value == 1) {
             if (ev.code == KEY_CODE_1) {
-                enqueue(COMMAND_1);
+                run_command(COMMAND_1);
                 send_notification(NOTIFICATION_TITLE_1, NOTIFICATION_MESSAGE_1);
             } else if (ev.code == KEY_CODE_2) {
-                enqueue(COMMAND_2);
+                run_command(COMMAND_2);
                 send_notification(NOTIFICATION_TITLE_2, NOTIFICATION_MESSAGE_2);
             } else if (ev.code == KEY_CODE_3) {
-                enqueue(COMMAND_3);
+                run_command(COMMAND_3);
                 send_notification(NOTIFICATION_TITLE_3, NOTIFICATION_MESSAGE_3);
             }
         }
